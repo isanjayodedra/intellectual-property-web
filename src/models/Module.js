@@ -1,28 +1,28 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class Token extends Model {
+    class Module extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
          * The `models/index` file will call this method automatically.
          */
+        static associate(models) {
+            // define association here
+          //  ModelName.belongsTo(models.agency, { foreignKey: 'agency_id', targetKey: 'id' });
+        }
     }
 
-    Token.init(
+    Module.init(
         {
-            token: DataTypes.STRING,
-            user_uuid: DataTypes.UUID,
-            type: DataTypes.STRING,
-            expires: DataTypes.DATE,
-            blacklisted: DataTypes.BOOLEAN,
+            code: DataTypes.STRING,
         },
         {
             sequelize,
-            modelName: 'token',
-            tableName: 'tokens',
+            modelName: 'module',
+            tableName: 'modules',
             underscored: true,
         },
     );
-    return Token;
+    return Module;
 };

@@ -2,7 +2,9 @@ const app = require('./app');
 const config = require('./config/config');
 
 console.log('Hello Intellectual Property!!');
-require('./cronJobs');
+// For schedule cronjob
+// require('./cronJobs');
+
 // eslint-disable-next-line import/order
 const http = require('http');
 // socket initialization

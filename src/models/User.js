@@ -16,10 +16,15 @@ module.exports = (sequelize, DataTypes) => {
     User.init(
         {
             uuid: DataTypes.UUID,
+            username: DataTypes.STRING,
             first_name: DataTypes.STRING,
             last_name: DataTypes.STRING,
             email: DataTypes.STRING,
             password: DataTypes.STRING,
+            image: DataTypes.STRING,
+            site_logo: DataTypes.STRING,
+            language_code: DataTypes.STRING,
+            role_id: DataTypes.INTEGER,
             status: DataTypes.INTEGER,
             email_verified: DataTypes.INTEGER,
             address: DataTypes.STRING,
@@ -28,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
         {
             sequelize,
             modelName: 'user',
+            tableName: 'users',
             underscored: true,
         },
     );

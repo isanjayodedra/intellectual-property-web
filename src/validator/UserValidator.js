@@ -6,11 +6,24 @@ class UserValidator {
     async userCreateValidator(req, res, next) {
         // create schema object
         const schema = Joi.object({
+            username: Joi.string()
+                .alphanum()
+                .min(3)
+                .max(30)
+                .required()
+                .messages({
+                'string.alphanum': 'Username must only contain alphanumeric characters',
+                'string.min': 'Username must be at least {#limit} characters long',
+                'string.max': 'Username cannot exceed {#limit} characters',
+                'string.empty': 'Username is required'
+                }),
             email: Joi.string().email().required(),
-            password: Joi.string().min(6).required(),
+            password: Joi.string().min(6).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
             confirm_password: Joi.string().valid(Joi.ref('password')).required(),
-            first_name: Joi.string(),
-            last_name: Joi.string(),
+            language_code: Joi.string().required(),
+            // language_code: Joi.string().valid(Joi.in('en','fr')),
+            // language_code: Joi.array().items(Joi.string().valid('en', 'fr')).required(),
+            role_id: Joi.number().required(),
         });
 
         // schema options

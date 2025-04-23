@@ -8,6 +8,8 @@ const auth = require('../middlewares/auth');
 const authController = new AuthController();
 const userValidator = new UserValidator();
 
+console.log('Congratulations! Auth Route is working!');
+
 router.post('/register', userValidator.userCreateValidator, authController.register);
 router.post('/email-exists', userValidator.checkEmailValidator, authController.checkEmail);
 router.post('/login', userValidator.userLoginValidator, authController.login);

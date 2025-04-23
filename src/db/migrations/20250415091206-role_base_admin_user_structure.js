@@ -20,11 +20,11 @@ module.exports = {
         type: Sequelize.STRING(100),
         allowNull: false,
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
@@ -42,11 +42,11 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
@@ -82,11 +82,11 @@ module.exports = {
       description: {
         type: Sequelize.TEXT,
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
@@ -104,11 +104,11 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
@@ -144,11 +144,11 @@ module.exports = {
       description: {
         type: Sequelize.TEXT,
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
@@ -166,11 +166,11 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
@@ -206,11 +206,11 @@ module.exports = {
       description: {
         type: Sequelize.TEXT,
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
@@ -247,56 +247,73 @@ module.exports = {
           key: 'id',
         },
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
     });
 
-    await queryInterface.createTable('admin_user', {
+    await queryInterface.createTable('users', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true,
       },
+      uuid: {
+        allowNull: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV1,
+        primaryKey: true,
+      },
       username: {
         type: Sequelize.STRING(50),
         allowNull: false,
         unique: true,
       },
-      full_name: {
-        type: Sequelize.STRING(100),
-        allowNull: false,
+      first_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
+      last_name: {
+          type: Sequelize.STRING,
+          allowNull: true,
+          defaultValue: null,
       },
       email: {
         type: Sequelize.STRING(100),
         allowNull: false,
         unique: true,
       },
-      password_hash: {
-        type: Sequelize.STRING(255),
-        allowNull: false,
+      password: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       password_reset_token: {
         type: Sequelize.STRING(255),
+        allowNull: true,
         defaultValue: null,
       },
       image: {
         type: Sequelize.STRING(255),
+        allowNull: true,
         defaultValue: null,
       },
       site_logo: {
         type: Sequelize.STRING(255),
+        allowNull: true,
         defaultValue: null,
       },
       status: {
-        type: Sequelize.ENUM('active', 'inactive'),
-        defaultValue: 'active',
+        type: Sequelize.INTEGER,
+      },
+      email_verified: {
+          type: Sequelize.INTEGER,
       },
       language_code: {
         type: Sequelize.STRING(10),
@@ -310,18 +327,28 @@ module.exports = {
           key: 'id',
         },
       },
-      createdAt: {
+      address: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
+      phone_number: {
+          type: Sequelize.STRING,
+          allowNull: true,
+          defaultValue: null,
+      },
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('admin_user');
+    await queryInterface.dropTable('users');
     await queryInterface.dropTable('role_module_permissions');
     await queryInterface.dropTable('module_translations');
     await queryInterface.dropTable('modules');

@@ -23,6 +23,9 @@ class UserService {
                 return responseHandler.returnError(httpStatus.BAD_REQUEST, 'Email already taken');
             }
             const uuid = uuidv4();
+            userBody.username = userBody.username;
+            userBody.language_code = userBody.language_code;
+            userBody.role_id = userBody.role_id;
             userBody.email = userBody.email.toLowerCase();
             userBody.password = bcrypt.hashSync(userBody.password, 8);
             userBody.uuid = uuid;
