@@ -20,6 +20,9 @@ module.exports = {
         type: Sequelize.STRING(100),
         allowNull: false,
       },
+      status: {
+        type: Sequelize.INTEGER,
+      },
       created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,

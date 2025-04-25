@@ -17,10 +17,11 @@ module.exports = (sequelize, DataTypes) => {
         {
             code: DataTypes.STRING,
             name: DataTypes.STRING,
+            status: DataTypes.INTEGER,
         },
         {
             sequelize,
-            modelName: 'language',
+            modelName: 'Language',
             tableName: 'languages',
             underscored: true,
         },

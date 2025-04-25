@@ -8,6 +8,15 @@ class LanguageDao extends SuperDao {
         super(Language);
     }
 
+    async isLanguageExists(code) {
+        return Language.count({ where: { code } }).then((count) => {
+            if (count != 0) {
+                return true;
+            }
+            return false;
+        });
+    }
+
     async findOne(where) {
         return Language.findOne({ where });
     }

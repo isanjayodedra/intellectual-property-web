@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'module',
+            modelName: 'Module',
             tableName: 'modules',
             underscored: true,
         },

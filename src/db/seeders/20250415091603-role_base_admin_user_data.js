@@ -7,8 +7,8 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     // Languages
     await queryInterface.bulkInsert('languages', [
-      { code: 'en', name: 'English', created_at: new Date(), updated_at: new Date() },
-      { code: 'fr', name: 'Français', created_at: new Date(), updated_at: new Date() },
+      { code: 'en', name: 'English', status: 1, created_at: new Date(), updated_at: new Date() },
+      { code: 'fr', name: 'Français', status: 1, created_at: new Date(), updated_at: new Date() },
     ], {});
 
     // Roles

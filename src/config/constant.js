@@ -5,6 +5,11 @@ const userConstant = {
     STATUS_INACTIVE: 0,
     STATUS_REMOVED: 2,
 };
+const languageConstant = {
+    STATUS_ACTIVE: 1,
+    STATUS_INACTIVE: 0,
+    STATUS_REMOVED: 2,
+};
 const verificationCodeConstant = {
     TYPE_EMAIL_VERIFICATION: 1,
     TYPE_RESET_PASSWORD: 2,
@@ -13,6 +18,7 @@ const verificationCodeConstant = {
 };
 
 module.exports = {
+    languageConstant,
     userConstant,
     verificationCodeConstant,
 };
