@@ -166,7 +166,5 @@ module.exports = {
     await queryInterface.dropTable('media_file_translations');
     await queryInterface.dropTable('media_files');
     await queryInterface.dropTable('media_folders');
-    await queryInterface.sequelize.query("DROP TYPE IF EXISTS \"enum_media_folders_status\"");
-    await queryInterface.sequelize.query("DROP TYPE IF EXISTS \"enum_media_files_status\"");
   }
 };

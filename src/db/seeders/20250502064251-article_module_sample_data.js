@@ -53,6 +53,16 @@ module.exports = {
         is_active: true,
         created_at: now,
         updated_at: now
+      },
+      {
+        id: 1,
+        name: 'AI',
+        slug: 'AI',
+        description: 'AI related to Data',
+        sort_order: 1,
+        is_active: true,
+        created_at: now,
+        updated_at: now
       }
     ]);
 
@@ -63,6 +73,15 @@ module.exports = {
         name: 'AI',
         slug: 'ai',
         description: 'Artificial Intelligence related articles',
+        is_active: true,
+        created_at: now,
+        updated_at: now
+      },
+      {
+        id: 1,
+        name: 'Technology',
+        slug: 'ai',
+        description: 'Technology related data',
         is_active: true,
         created_at: now,
         updated_at: now
