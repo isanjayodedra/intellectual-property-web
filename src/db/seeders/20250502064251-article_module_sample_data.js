@@ -55,7 +55,7 @@ module.exports = {
         updated_at: now
       },
       {
-        id: 1,
+        id: 2,
         name: 'AI',
         slug: 'AI',
         description: 'AI related to Data',
@@ -78,7 +78,7 @@ module.exports = {
         updated_at: now
       },
       {
-        id: 1,
+        id: 2,
         name: 'Technology',
         slug: 'ai',
         description: 'Technology related data',
