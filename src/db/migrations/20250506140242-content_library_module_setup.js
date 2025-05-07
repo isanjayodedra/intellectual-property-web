@@ -2,8 +2,8 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // media_folders
-    await queryInterface.createTable('media_folders', {
+    // content_library_folders
+    await queryInterface.createTable('content_library_folders', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -12,7 +12,7 @@ module.exports = {
       parent_id: {
         type: Sequelize.UUID,
         allowNull: true,
-        references: { model: 'media_folders', key: 'id' },
+        references: { model: 'content_library_folders', key: 'id' },
         onDelete: 'CASCADE',
       },
       user_id: {
@@ -50,14 +50,14 @@ module.exports = {
       },
     });
 
-    await queryInterface.addConstraint('media_folders', {
+    await queryInterface.addConstraint('content_library_folders', {
       fields: ['user_id', 'slug'],
       type: 'unique',
-      name: 'uq_media_folders_userid_slug',
+      name: 'uq_content_library_folders_userid_slug',
     });
 
-    // media_files
-    await queryInterface.createTable('media_files', {
+    // content_library_files
+    await queryInterface.createTable('content_library_files', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -66,7 +66,7 @@ module.exports = {
       folder_id: {
         type: Sequelize.UUID,
         allowNull: true,
-        references: { model: 'media_folders', key: 'id' },
+        references: { model: 'content_library_folders', key: 'id' },
         onDelete: 'SET NULL',
       },
       user_id: {
@@ -75,7 +75,7 @@ module.exports = {
         references: { model: 'users', key: 'id' },
         onDelete: 'CASCADE',
       },
-      media_category_id: {
+      category_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: { model: 'categories', key: 'id' },
@@ -124,25 +124,25 @@ module.exports = {
       },
     });
 
-    await queryInterface.addIndex('media_files', ['folder_id']);
-    await queryInterface.addIndex('media_files', ['user_id']);
-    await queryInterface.addIndex('media_files', ['media_category_id']);
-    await queryInterface.addIndex('media_files', ['is_public']);
+    await queryInterface.addIndex('content_library_files', ['folder_id']);
+    await queryInterface.addIndex('content_library_files', ['user_id']);
+    await queryInterface.addIndex('content_library_files', ['category_id']);
+    await queryInterface.addIndex('content_library_files', ['is_public']);
 
-    // media_file_tags (uses global tags)
-    await queryInterface.createTable('media_file_tags', {
+    // content_library_file_tags (uses global tags)
+    await queryInterface.createTable('content_library_file_tags', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      media_file_id: {
+      content_library_file_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: { model: 'media_files', key: 'id' },
+        references: { model: 'content_library_files', key: 'id' },
         onDelete: 'CASCADE',
       },
-      media_tag_id: {
+      tag_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: { model: 'tags', key: 'id' },
@@ -158,16 +158,16 @@ module.exports = {
       },
     });
 
-    await queryInterface.addConstraint('media_file_tags', {
-      fields: ['media_file_id', 'media_tag_id'],
+    await queryInterface.addConstraint('content_library_file_tags', {
+      fields: ['content_library_file_id', 'tag_id'],
       type: 'unique',
-      name: 'uq_media_file_tag_combo',
+      name: 'uq_content_library_file_tag_combo',
     });
   },
 
   down: async (queryInterface) => {
-    await queryInterface.dropTable('media_file_tags');
-    await queryInterface.dropTable('media_files');
-    await queryInterface.dropTable('media_folders');
+    await queryInterface.dropTable('content_library_file_tags');
+    await queryInterface.dropTable('content_library_files');
+    await queryInterface.dropTable('content_library_folders');
   },
 };
