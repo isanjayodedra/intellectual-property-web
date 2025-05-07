@@ -210,6 +210,14 @@ module.exports = {
         type: Sequelize.STRING(10),
         defaultValue: 'en',
       },
+      locale: {
+        type: Sequelize.STRING(30),
+        defaultValue: 'en_US',
+      },
+      timezone: {
+        type: Sequelize.STRING(30),
+        defaultValue: 'EST',
+      },
       role_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
