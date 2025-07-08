@@ -5,6 +5,7 @@ const UserDao = require('../dao/UserDao');
 const responseHandler = require('../helper/responseHandler');
 const logger = require('../config/logger');
 const { userConstant } = require('../config/constant');
+const UserResponseHelper = require('../helper/UserResponseHelper');
 
 class UserService {
     constructor() {
@@ -39,15 +40,61 @@ class UserService {
                 return responseHandler.returnError(httpStatus.BAD_REQUEST, message);
             }
           
-            userData = userData.toJSON();
-            delete userData.password;
-
-            return responseHandler.returnSuccess(httpStatus.CREATED, message, userData);
+            const result = await this.userDao.findById(userData.id);
+            
+            return responseHandler.returnSuccess(httpStatus.CREATED, message, UserResponseHelper.formatUser(result));
         } catch (e) {
             logger.error(e);
             return responseHandler.returnError(httpStatus.BAD_REQUEST, 'Something went wrong!');
         }
     };
+
+    /**
+     * Update user
+     * @param {Object} userBody
+     * @returns {Object}
+     */
+    async updateUser(id, userBody) {
+        try {
+            const user = await this.userDao.findByPk(id);
+            if (!user) {
+            return responseHandler.returnError(httpStatus.BAD_REQUEST, 'User not Found!!');
+            }
+            if (userBody.password && userBody.old_password) {
+                const isPasswordValid = await bcrypt.compare(userBody.old_password, user.password);
+                if (!isPasswordValid) {
+                    return responseHandler.returnError(httpStatus.BAD_REQUEST, 'Wrong old Password!');
+                }
+                userBody.password = bcrypt.hashSync(userBody.password, 8);
+            }else{
+                userBody.password = user.password;
+            }
+
+            await this.userDao.updateById(userBody, id);
+            const result = await this.userDao.findById(id); // ensure we return updated user with relations
+
+            return responseHandler.returnSuccess(httpStatus.OK, 'User updated', UserResponseHelper.formatUser(result));
+        } catch (e) {
+            logger.error(e);
+            return responseHandler.returnError(httpStatus.BAD_REQUEST, 'Failed to update user');
+        }
+        }
+    updateUserOld = async (id, userBody) => {
+        let user = await this.userDao.findByPk(id);
+        if (!user) return responseHandler.returnError(httpStatus.BAD_REQUEST, 'User not Found!!');
+        if(userBody.password && userBody.old_password ){
+            const isPasswordValid = await bcrypt.compare(userBody.old_password, user.password);
+            if (!isPasswordValid) {
+                const message = 'Wrong old Password!';
+                return responseHandler.returnError(httpStatus.BAD_REQUEST, message);
+            }
+            userBody.password = bcrypt.hashSync(userBody.password, 8)
+        }
+        const result = await this.userDao.updateById(userBody, id)
+        user = user.toJSON();
+        delete user.password;
+        return { ...user, ...userBody };
+      };
 
     /**
      * Get user
@@ -67,8 +114,12 @@ class UserService {
         return this.userDao.findOneByWhere({ uuid });
     };
 
+    getUserById = async (id) => {
+        return this.userDao.getUserById(id );
+    };
+
     changePassword = async (data, uuid) => {
-        let message = 'Login Successful';
+        let message = 'password update Successful';
         let statusCode = httpStatus.OK;
         let user = await this.userDao.findOneByWhere({ uuid });
 
@@ -105,6 +156,24 @@ class UserService {
         }
 
         return responseHandler.returnError(httpStatus.BAD_REQUEST, 'Password Update Failed!');
+    };
+
+    updateUserStatus = async (userId, status) => {
+    try {
+        const updatedUser = await this.userDao.updateUser(userId, { status });
+
+        return responseHandler.returnSuccess(
+            httpStatus.OK,
+            `User status updated to ${status === 1 ? 'active' : 'inactive'}`,
+            UserResponseHelper.formatUser(updatedUser)
+        );
+        } catch (err) {
+        logger.error(err);
+        return responseHandler.returnError(
+            httpStatus.BAD_REQUEST,
+            'Failed to update user status'
+        );
+        }
     };
 }
 

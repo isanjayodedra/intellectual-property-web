@@ -14,6 +14,15 @@ if (config.use_env_variable) {
 } else {
     sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
+async function startApp() {
+  try {
+    await sequelize.authenticate();
+    console.log('✅ Database connection has been established successfully.');
+  } catch (error) {
+    console.error('❌ Unable to connect to the database:', error);
+  }
+}
+startApp();
 
 fs.readdirSync(__dirname)
     .filter((file) => {

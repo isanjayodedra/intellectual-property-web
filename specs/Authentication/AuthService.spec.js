@@ -7,7 +7,7 @@ const AuthService = require('../../src/service/AuthService');
 const UserDao = require('../../src/dao/UserDao');
 const models = require('../../src/models');
 
-const User = models.user;
+const User = models.User;
 const bcrypt = require('bcryptjs');
 
 let authService;

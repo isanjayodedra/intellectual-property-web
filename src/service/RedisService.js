@@ -1,7 +1,6 @@
 const redisClient = require('../config/redisClient');
 const RedisHelper = require('../helper/RedisHelper');
 const { jwt } = require('../config/config');
-
 class RedisService {
     constructor() {
         this.redisHelper = new RedisHelper(redisClient);
@@ -71,6 +70,38 @@ class RedisService {
             return true;
         }
         return false;
+    };
+
+    /**
+     * Set 2FA
+     * @param {Object} user
+     * @returns {boolean}
+     */
+    set2FA = async (key, value, ttlSeconds = 300) => {
+        await this.redisHelper.setEx(key, ttlSeconds, value);
+        return true;
+    };
+
+    /**
+     * Get 2FA
+     * @param {String} uuid
+     * @returns {Object/Boolean}
+     */
+    get2FA = async (key) => {
+        const auth2fa = await this.redisHelper.get(`${key}`);
+        if (auth2fa != null) {
+            return JSON.parse(auth2fa);
+        }
+        return false;
+    };
+
+    /**
+     * Remove 2fa tokens
+     * @param {String} key
+     * @returns {boolean}
+     */
+    remove2FA = async (key) => {
+        return this.redisHelper.del(`${key}`);
     };
 }
 

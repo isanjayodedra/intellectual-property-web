@@ -1,7 +1,7 @@
 const app = require('./app');
 const config = require('./config/config');
 
-console.log('Hello Intellectual Property!!');
+console.log('Hello Web API for Intellectual Property!!');
 // For schedule cronjob
 // require('./cronJobs');
 

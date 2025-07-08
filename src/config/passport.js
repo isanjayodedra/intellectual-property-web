@@ -1,69 +1,81 @@
-const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
+const { Strategy: JwtStrategy } = require('passport-jwt');
 const UserDao = require('../dao/UserDao');
-const config = require('./config');
-const { tokenTypes } = require('./tokens');
 const TokenDao = require('../dao/TokenDao');
 const RedisService = require('../service/RedisService');
+const config = require('./config');
+const { tokenTypes } = require('./tokens');
 const models = require('../models');
 
-const User = models.user;
-const jwtOptions = {
-    secretOrKey: config.jwt.secret,
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    passReqToCallback: true,
+const User = models.User;
+
+// ✅ Extract JWT from the 'access_token' cookie
+const cookieExtractor = function (req) {
+  let token = null;
+  if (req && req.cookies) {
+    token = req.cookies.access_token;
+  }
+  return token;
 };
 
+const jwtOptions = {
+  secretOrKey: config.jwt.secret,
+  jwtFromRequest: cookieExtractor,
+  passReqToCallback: true,
+};
+
+// ✅ JWT verification logic
 const jwtVerify = async (req, payload, done) => {
-    try {
-        if (payload.type !== tokenTypes.ACCESS) {
-            throw new Error('Invalid token type');
-        }
-        const userDao = new UserDao();
-        const tokenDao = new TokenDao();
-        const redisService = new RedisService();
-        const authorization =
-            req.headers.authorization !== undefined ? req.headers.authorization.split(' ') : [];
-        if (authorization[1] === undefined) {
-            return done(null, false);
-        }
-
-        let tokenDoc = redisService.hasToken(authorization[1], 'access_token');
-        if (!tokenDoc) {
-            console.log('Cache Missed!');
-            tokenDoc = await tokenDao.findOne({
-                token: authorization[1],
-                type: tokenTypes.ACCESS,
-                blacklisted: false,
-            });
-        }
-
-        if (!tokenDoc) {
-            return done(null, false);
-        }
-        let user = await redisService.getUser(payload.sub);
-        if (user) {
-            user = new User(user);
-        }
-
-        if (!user) {
-            console.log('User Cache Missed!');
-            user = await userDao.findOneByWhere({ uuid: payload.sub });
-            redisService.setUser(user);
-        }
-
-        if (!user) {
-            return done(null, false);
-        }
-
-        done(null, user);
-    } catch (error) {
-        console.log(error);
-        done(error, false);
+  try {
+    if (payload.type !== tokenTypes.ACCESS) {
+      return done(null, false);
     }
+
+    const userDao = new UserDao();
+    const tokenDao = new TokenDao();
+    const redisService = new RedisService();
+
+    const token = req.cookies?.access_token;
+    if (!token) {
+      return done(null, false);
+    }
+
+    // 🔄 Check Redis first for the token
+    let tokenDoc = await redisService.hasToken(token, 'access_token');
+    if (!tokenDoc) {
+      console.log('Access token cache missed, checking DB...');
+      tokenDoc = await tokenDao.findOne({
+        token,
+        type: tokenTypes.ACCESS,
+        blacklisted: false,
+      });
+    }
+
+    if (!tokenDoc) {
+      return done(null, false);
+    }
+
+    // 🔄 Load user from Redis or DB
+    let user = await redisService.getUser(payload.sub);
+    if (!user) {
+      console.log('User cache missed, loading from DB...');
+      user = await userDao.findOneByWhere({ uuid: payload.sub });
+      if (!user) {
+        return done(null, false);
+      }
+      await redisService.setUser(user); // Cache user for next time
+    } else {
+      user = new User(user); // hydrate Sequelize model
+    }
+
+    return done(null, user);
+  } catch (error) {
+    console.error('JWT verification error:', error);
+    return done(error, false);
+  }
 };
 
 const jwtStrategy = new JwtStrategy(jwtOptions, jwtVerify);
 
 module.exports = {
-    jwtStrategy,
+  jwtStrategy,
 };

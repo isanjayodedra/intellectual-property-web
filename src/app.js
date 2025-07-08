@@ -2,46 +2,103 @@ const express = require('express');
 const cors = require('cors');
 const passport = require('passport');
 const httpStatus = require('http-status');
+const cookieParser = require('cookie-parser');
+const path = require('path');
+const fs = require('fs');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
 const routes = require('./route');
+const healthCheckRoute = require('./route/healthCheck');
 const { jwtStrategy } = require('./config/passport');
-const { errorConverter, errorHandler } = require('./middlewares/error');
+const { errorConverter, errorHandler } = require('./middleware/error');
+//const csrfMiddleware = require('./middleware/csrf');
 const ApiError = require('./helper/ApiError');
+const swaggerDefinition = require('./docs/swaggerDef');
 
 process.env.PWD = process.cwd();
-
 const app = express();
 
-// enable cors
-app.use(cors());
-app.options('*', cors());
+// Parse cookies
+app.use(cookieParser());
 
+// Swagger Docs
+const swaggerSpec = swaggerJsdoc({
+  swaggerDefinition,
+  apis: ['./src/route/*.js', './src/controllers/*.js'],
+});
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+app.get('/docs', (req, res) => {
+  res.sendFile(path.join(__dirname, './docs/swagger-template.html'));
+});
+
+// Health Check Route
+app.use('/', healthCheckRoute);
+
+// Allowed frontend domains
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://ip-cms-api.ypstagingserver.com',
+  'https://ip-cms-back.ypstagingserver.com',
+];
+
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-xsrf-token'],
+  exposedHeaders: ['set-cookie'],
+  preflightContinue: false,
+  origin: allowedOrigins
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// Static Files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads/user')));
 app.use(express.static(`${process.env.PWD}/public`));
 
+// Body Parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// jwt authentication
+// Passport JWT
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
 
+// Root route
 app.get('/', async (req, res) => {
-    res.status(200).send('Congratulations! API is working!');
+  res.status(200).send('Congratulations! IP-Web API is working!');
 });
-app.use('/api', routes);
 
-// send back a 404 error for any unknown api request
+// CSRF middleware (sets XSRF-TOKEN cookie)
+// app.use(csrfMiddleware);
+
+// All other routes
+app.use('', routes);
+
+// 404 handler
 app.use((req, res, next) => {
-    next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
+  next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
 });
 
-// convert error to ApiError, if needed
+// Error handling
 app.use(errorConverter);
-
-// handle error
 app.use(errorHandler);
-const db = require('./models');
 
-// Uncomment this line if you want to sync database model
-// db.sequelize.sync()
+// Sequelize (if needed)
+const db = require('./models');
+// db.sequelize.sync(); // Uncomment if you want to sync models
 
 module.exports = app;

@@ -1,0 +1,209 @@
+openapi: 3.0.0
+info:
+  title: Admin Service APIs
+  version: 1.0.0
+  description: Role & Account Management API
+
+tags:
+  - name: Admin
+    description: Admin-level operations (Roles, Accounts)
+
+paths:
+  /admin/roles:
+    post:
+      summary: Create a new role
+      tags: [Admin]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: editor
+                translations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      language_code:
+                        type: string
+                        example: en
+                      name:
+                        type: string
+                        example: Editor
+                      description:
+                        type: string
+                        example: Can edit content
+      responses:
+        201:
+          description: Role created
+        400:
+          description: Bad request
+
+  /admin/roles/{id}:
+    get:
+      summary: Get role by ID
+      tags: [Admin]
+      security: [bearerAuth: []]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Role details
+        404:
+          description: Role not found
+
+    put:
+      summary: Update a role
+      tags: [Admin]
+      security: [bearerAuth: []]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                translations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      language_code:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+      responses:
+        200:
+          description: Role updated
+
+    delete:
+      summary: Delete a role
+      tags: [Admin]
+      security: [bearerAuth: []]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Role deleted
+
+  /admin/accounts:
+    post:
+      summary: Create a new user account
+      tags: [Admin]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                phone_number:
+                  type: string
+                address:
+                  type: string
+                status:
+                  type: integer
+                role_id:
+                  type: integer
+      responses:
+        201:
+          description: Account created
+
+  /admin/accounts/{id}:
+    get:
+      summary: Get account by ID
+      tags: [Admin]
+      security: [bearerAuth: []]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Account details
+
+    put:
+      summary: Update account by ID
+      tags: [Admin]
+      security: [bearerAuth: []]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                status:
+                  type: integer
+                role_id:
+                  type: integer
+                phone_number:
+                  type: string
+      responses:
+        200:
+          description: Account updated
+
+    delete:
+      summary: Delete account by ID
+      tags: [Admin]
+      security: [bearerAuth: []]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Account deleted
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

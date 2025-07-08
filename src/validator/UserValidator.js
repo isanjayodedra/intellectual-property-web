@@ -1,6 +1,8 @@
 const Joi = require('joi');
 const httpStatus = require('http-status');
 const ApiError = require('../helper/ApiError');
+const models = require('../models');
+const User = models.User;
 
 class UserValidator {
     async userCreateValidator(req, res, next) {
@@ -49,6 +51,78 @@ class UserValidator {
             req.body = value;
             return next();
         }
+    }
+
+    async userUpdateValidator(req, res, next) {
+        const schema = Joi.object({
+          username: Joi.string().alphanum().min(3).max(30),
+          email: Joi.string().email(),
+          password: Joi.string().optional(),
+          old_password: Joi.string().optional(),
+          first_name: Joi.string().max(100).allow(null, ''),
+          last_name: Joi.string().max(100).allow(null, ''),
+          language_code: Joi.string().valid('en', 'fr', 'es', 'de'),
+          role_id: Joi.number().integer().positive(),
+          phone_number: Joi.string().max(20).allow(null, ''),
+          address: Joi.string().max(255).allow(null, ''),
+          image: Joi.string().uri().allow(null, ''),
+          site_logo: Joi.string().uri().allow(null, ''),
+          timezone: Joi.string().max(50).allow(null, ''),
+          locale: Joi.string().max(50).allow(null, ''),
+          status: Joi.number().valid(0, 1),
+          email_verified: Joi.number().valid(0, 1),
+        });
+      
+        const options = {
+          abortEarly: false,
+          allowUnknown: true,
+          stripUnknown: true,
+        };
+      
+        const { error, value } = schema.validate(req.body, options);
+        if (error) {
+          const message = error.details.map((d) => d.message).join(', ');
+          return next(new ApiError(httpStatus.BAD_REQUEST, message));
+        }
+      
+        const userId = req.user?.id;
+        if (!userId) {
+          return next(new ApiError(httpStatus.UNAUTHORIZED, 'User ID missing from token'));
+        }
+      
+        // 🔍 Uniqueness check for username (if changed)
+        if (value.username) {
+          const existingUser = await User.findOne({ where: { username: value.username } });
+          if (existingUser && existingUser.id !== userId) {
+            return next(new ApiError(httpStatus.BAD_REQUEST, 'Username already in use'));
+          }
+        }
+      
+        // 🔍 Uniqueness check for email (if changed)
+        if (value.email) {
+          const existingEmail = await User.findOne({ where: { email: value.email } });
+          if (existingEmail && existingEmail.id !== userId) {
+            return next(new ApiError(httpStatus.BAD_REQUEST, 'Email already in use'));
+          }
+        }
+      
+        req.body = value;
+        next();
+    };
+
+    changeStatusValidator(req, res, next) {
+        const schema = Joi.object({
+            status: Joi.number().valid(0, 1).required()
+        });
+
+        const { error } = schema.validate(req.body, { abortEarly: false });
+
+        if (error) {
+            const message = error.details.map((d) => d.message).join(', ');
+            return next(new ApiError(httpStatus.BAD_REQUEST, message));
+        }
+
+        next();
     }
 
     async userLoginValidator(req, res, next) {
@@ -145,6 +219,57 @@ class UserValidator {
             req.body = value;
             return next();
         }
+    }
+
+    async resend2FAValidator(req, res, next) {
+        const schema = Joi.object({
+            token: Joi.string()
+            .pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)
+            .required()
+            .messages({
+            'string.pattern.base': 'Token format is invalid',
+            'string.base': 'Token must be a string',
+            'any.required': '2FA token is required',
+            }),
+        });
+
+        const { error, value } = schema.validate(req.body, {
+            abortEarly: false,
+            allowUnknown: true,
+            stripUnknown: true,
+        });
+
+        if (error) {
+            const errorMessage = error.details.map((d) => d.message).join(', ');
+            return next(new ApiError(httpStatus.BAD_REQUEST, errorMessage));
+        }
+
+        req.body = value;
+        next();
+    }
+
+    async verify2FAValidator(req, res, next) {
+        const schema = Joi.object({
+            token: Joi.string().required().messages({
+                'string.base': 'Token must be a string',
+                'any.required': '2FA token is required',
+            }),
+            code: Joi.number().integer().positive(),
+        });
+
+        const { error, value } = schema.validate(req.body, {
+            abortEarly: false,
+            allowUnknown: true,
+            stripUnknown: true,
+        });
+
+        if (error) {
+            const errorMessage = error.details.map((d) => d.message).join(', ');
+            return next(new ApiError(httpStatus.BAD_REQUEST, errorMessage));
+        }
+
+        req.body = value;
+        next();
     }
 }
 

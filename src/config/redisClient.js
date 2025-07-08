@@ -6,6 +6,16 @@ const client = Redis.createClient({ url });
 if (redis.usePassword.toUpperCase() === 'YES') {
     client.auth(redis.password);
 }
+client.on('error', (err) => {
+  console.error('❌ Redis Client Error:', err);
+});
+(async () => {
+  try {
+    await client.connect(); // ✅ THIS IS CRUCIAL
+    console.log('✅ Redis client connected successfully!');
+  } catch (err) {
+    console.error('❌ Failed to connect Redis:', err);
+  }
+})();
 
-console.log('Redis Client loaded!!!');
 module.exports = client;

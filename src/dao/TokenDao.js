@@ -1,3 +1,5 @@
+const responseHandler = require('../helper/responseHandler');
+const httpStatus = require('http-status');
 const SuperDao = require('./SuperDao');
 const models = require('../models');
 
@@ -12,8 +14,43 @@ class TokenDao extends SuperDao {
         return Token.findOne({ where });
     }
 
-    async remove(where) {
-        return Token.destroy({ where });
+    async saveToken(token, user_uuid, expires, type, blacklisted = false) {
+        return Token.create({
+        token,
+        user_uuid,
+        expires,
+        type,
+        blacklisted
+        });
+    }
+
+    async remove(filter) {
+        return Token.destroy({ where: filter });
+    }
+
+    async verifyToken(token, type) {
+        const tokenDoc = await Token.findOne({
+        where: {
+            token,
+            type,
+            blacklisted: false,
+        },
+        });
+
+        if (!tokenDoc){
+            return responseHandler.returnError(httpStatus.UNAUTHORIZED, `${type} token not found or expired`);
+        }
+             
+        
+        if (tokenDoc.expires < new Date()) {
+            return responseHandler.returnError(httpStatus.UNAUTHORIZED, `${type} token expired`);
+        }
+
+        return tokenDoc;
+    }
+
+    async removeTokenById(id) {
+        return Token.destroy({ where: { id } });
     }
 }
 

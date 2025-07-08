@@ -1,32 +1,56 @@
-# Intellectual Property
+# Intellectual Property CMS
 
 Intellectual property (IP) refers to creations of the mind, like inventions, literary and artistic works, designs, and symbols, names, and images used in commerce, protected by law through patents, copyright, and trademarks.
 
-## Manual Installation
+## 📦 Project Structure
 
-Clone the repo:
+## 🚀 Getting Started
 
-```bash
-git clone git@github.com:isanjayodedra/intellectual-property.git
-cd intellectual-property
-```
+### Prerequisites
 
-Install the dependencies:
+- Docker and Docker Compose installed
 
-```bash
-npm install
-```
+## Installation
 
-Set the environment variables:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/isanjayodedra/intellectual-property-web.git
+   cd intellectual-property-web
+   npm install
+   ```
 
-```bash
-cp .env.example .env
+2. Copy environment files:
+   ```bash
+   cp .env.example .env
+   ```
 
-# open .env and modify the environment variables (if needed)
-```
+3. Start all services with Docker Compose:
+   ```bash
+   docker-compose up --build
+   ```
+
+4. Access services:
+   - http://localhost:3000
+   
+5. MySQL Database:
+   - Host: `localhost`
+   - Port: `3306`
+   - User: `ipcms_user`
+   - Password: `ipcms_password`
+   - Database: `ipcms_db`
+
+6. Redis Server:
+   - Host: `localhost`
+   - Port: `6379`
+
+## ⚙️ Services Overview
+
+| Service | Port | Description |
+|:--------|:-----|:------------|
+| website | 3000 | Entry point for all API traffic |
 
 
-## Features
+## 🛠 Tech Stack
 
 - **ORM**: [Sequelize](https://sequelize.org/)  orm for object data modeling
 - **Migration and Seed**: DB migration and Seed using [Sequelize-CLI](https://github.com/sequelize/cli) 
@@ -44,25 +68,31 @@ cp .env.example .env
 - **Docker support**
 - **Linting**: with [ESLint](https://eslint.org) and [Prettier](https://prettier.io)
 
+## 🔒 Security Features
+
+- JWT Token Authentication
+- Password Hashing (bcryptjs)
+- Environment Variable Management (.env)
+
 ## Commands
 
 Running locally:
 
 ```bash
-npm dev
+npm run dev
 ```
 
 Running in production:
 
 ```bash
-npm start
+npm run start
 ```
 
 Testing:
 
 ```bash
 # run all tests
-npm test
+npm run test
 
 ```
 
@@ -74,7 +104,7 @@ The environment variables can be found and modified in the `.env` file. They com
 #Server environment
 NODE_ENV=development
 #Port number
-PORT=5000
+PORT=4000
 
 #Db configuration
 DB_HOST=db-host
@@ -101,6 +131,12 @@ REDIS_PORT=6379
 REDIS_USE_PASSWORD=no
 REDIS_PASSWORD=your-password
 
+#s3 bucket
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=your_region
+AWS_S3_BUCKET_NAME=your_bucket_name
+
 ```
 
 ## Project Structure
@@ -122,6 +158,37 @@ src\
  |--index.js        # App entry point
 ```
 
-## License
+## 🧪 Testing
 
-[MIT](LICENSE)
+```javascript
+// auth-service/tests/auth.test.js
+
+const request = require('supertest');
+const app = require('../src/index');
+
+describe(' Login API', () => {
+  it('should login successfully with valid credentials', async () => {
+    const res = await request(app)
+      .post('/auth/login')
+      .send({
+        email: 'sanjay@example.com',
+        password: 'Test@1234',
+      });
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('token');
+  });
+});
+```
+
+Run tests with:
+```bash
+npm run test
+```
+
+## 📄 License
+
+This project is licensed under the [MIT](LICENSE)
+
+---
+
+_Developed with ❤️ by [Sanjay Odedra](https://github.com/isanjayodedra)_
