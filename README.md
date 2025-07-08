@@ -104,7 +104,7 @@ The environment variables can be found and modified in the `.env` file. They com
 #Server environment
 NODE_ENV=development
 #Port number
-PORT=4000
+PORT=3000
 
 #Db configuration
 DB_HOST=db-host
